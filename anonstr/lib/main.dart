@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nostr_tools/nostr_tools.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:ui';
 
 void main() {
@@ -15,6 +16,31 @@ class Anonstr extends StatefulWidget {
 
 class _AnonstrState extends State<Anonstr> {
   bool _isDarkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadThemePreference();
+  }
+
+  Future<void> _loadThemePreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
+  Future<void> _saveThemePreference() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isDarkMode', _isDarkMode);
+  }
+
+  void _toggleDarkMode() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+    });
+    _saveThemePreference();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +70,7 @@ class _AnonstrState extends State<Anonstr> {
 
   ThemeData _buildDarkTheme() {
     return ThemeData.dark().copyWith(
-      colorScheme: ColorScheme.dark(
+      colorScheme: const ColorScheme.dark(
         primary: Colors.white,
         secondary: Colors.grey,
         surface: Colors.black,
@@ -55,12 +81,6 @@ class _AnonstrState extends State<Anonstr> {
         onError: Colors.black,
       ),
     );
-  }
-
-  void _toggleDarkMode() {
-    setState(() {
-      _isDarkMode = !_isDarkMode;
-    });
   }
 }
 
