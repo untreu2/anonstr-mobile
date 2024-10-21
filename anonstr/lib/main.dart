@@ -254,6 +254,7 @@ class _NostrHomePageState extends State<NostrHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('anonstr'),
+        centerTitle: true,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
@@ -277,7 +278,7 @@ class _NostrHomePageState extends State<NostrHomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 165),
+                    const SizedBox(height: 50),
                     TextField(
                       controller: _noteController,
                       decoration: const InputDecoration(
@@ -294,7 +295,7 @@ class _NostrHomePageState extends State<NostrHomePage> {
                         border: OutlineInputBorder(),
                       ),
                     ),
-                    const SizedBox(height: 165),
+                    const SizedBox(height: 50),
                     _isLoading
                         ? const CircularProgressIndicator()
                         : ElevatedButton(
