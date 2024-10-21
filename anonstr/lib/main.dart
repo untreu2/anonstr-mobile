@@ -221,9 +221,9 @@ class _NostrHomePageState extends State<NostrHomePage> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    _copyToClipboard(njumpLink, 'njump link copied to clipboard');
+                    _copyToClipboard(njumpLink, 'Njump link copied to clipboard');
                   },
-                  child: const Text('Copy njump link'),
+                  child: const Text('Copy Njump link'),
                 ),
               ),
             ],
@@ -341,12 +341,19 @@ class _NostrHomePageState extends State<NostrHomePage> {
                     _isLoading
                         ? const CircularProgressIndicator()
                         : ElevatedButton(
-                            onPressed: _broadcastNote,
-                            style: ElevatedButton.styleFrom(
-                              minimumSize: const Size(double.infinity, 50),
-                            ),
-                            child: const Text('Share'),
-                          ),
+                          onPressed: _broadcastNote,
+                          style: ElevatedButton.styleFrom(                       
+                          minimumSize: const Size(double.infinity, 50),
+                          backgroundColor: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                          foregroundColor: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.black
+                          : Colors.white,
+  ),
+  child: const Text('Share'),
+)
+
                   ],
                 ),
               ),
