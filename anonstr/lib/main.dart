@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nostr_tools/nostr_tools.dart';
+import 'dart:ui';
 
 void main() {
   runApp(Anonstr());
@@ -90,7 +91,7 @@ class _NostrHomePageState extends State<NostrHomePage> {
 
   Future<void> _broadcastNote() async {
     final noteContent = _noteController.text;
-    
+
     if (noteContent.isEmpty) {
       _showWarningDialog('Note field cannot be empty.');
       return;
@@ -270,6 +271,47 @@ class _NostrHomePageState extends State<NostrHomePage> {
       ),
       body: Stack(
         children: [
+          Positioned.fill(
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 50,
+                    top: 100,
+                    child: Text(
+                      '👁️',
+                      style: TextStyle(fontSize: 120, color: Colors.grey.withOpacity(0.3)),
+                    ),
+                  ),
+                  Positioned(
+                    right: 50,
+                    top: 150,
+                    child: Text(
+                      '👁️',
+                      style: TextStyle(fontSize: 60, color: Colors.grey.withOpacity(0.3)),
+                    ),
+                  ),
+                  Positioned(
+                    left: 30,
+                    bottom: 100,
+                    child: Text(
+                      '👁️',
+                      style: TextStyle(fontSize: 100, color: Colors.grey.withOpacity(0.3)),
+                    ),
+                  ),
+                  Positioned(
+                    right: 70,
+                    bottom: 50,
+                    child: Text(
+                      '👁️',
+                      style: TextStyle(fontSize: 50, color: Colors.grey.withOpacity(0.3)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Positioned.fill(
             child: Center(
               child: Padding(
