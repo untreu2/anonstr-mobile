@@ -1,0 +1,5 @@
+package com.example.anonstr
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity()
