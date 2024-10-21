@@ -4,15 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:nostr_tools/nostr_tools.dart';
 
 void main() {
-  runApp(anonstr());
+  runApp(Anonstr());
 }
 
-class anonstr extends StatefulWidget {
+class Anonstr extends StatefulWidget {
   @override
-  _anonstrState createState() => _anonstrState();
+  _AnonstrState createState() => _AnonstrState();
 }
 
-class _anonstrState extends State<anonstr> {
+class _AnonstrState extends State<Anonstr> {
   bool _isDarkMode = false;
 
   @override
@@ -29,11 +29,11 @@ class _anonstrState extends State<anonstr> {
   ThemeData _buildLightTheme() {
     return ThemeData.light().copyWith(
       colorScheme: const ColorScheme.light(
-        primary: Colors.brown,
-        secondary: Colors.orange,
+        primary: Colors.black,
+        secondary: Colors.grey,
         surface: Colors.white,
-        error: Colors.red,
-        onPrimary: Colors.black,
+        error: Colors.grey,
+        onPrimary: Colors.white,
         onSecondary: Colors.black,
         onSurface: Colors.black,
         onError: Colors.white,
@@ -44,14 +44,14 @@ class _anonstrState extends State<anonstr> {
   ThemeData _buildDarkTheme() {
     return ThemeData.dark().copyWith(
       colorScheme: ColorScheme.dark(
-        primary: Colors.yellow.shade700,
-        secondary: Colors.orange,
-        surface: Colors.grey.shade800,
-        error: Colors.red,
-        onPrimary: Colors.white,
+        primary: Colors.white,
+        secondary: Colors.grey,
+        surface: Colors.black,
+        error: Colors.grey,
+        onPrimary: Colors.black,
         onSecondary: Colors.white,
         onSurface: Colors.white,
-        onError: Colors.white,
+        onError: Colors.black,
       ),
     );
   }
@@ -89,6 +89,13 @@ class _NostrHomePageState extends State<NostrHomePage> {
   ];
 
   Future<void> _broadcastNote() async {
+    final noteContent = _noteController.text;
+    
+    if (noteContent.isEmpty) {
+      _showWarningDialog('Note field cannot be empty.');
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -100,8 +107,7 @@ class _NostrHomePageState extends State<NostrHomePage> {
     final privateKey = keyApi.generatePrivateKey();
     final publicKey = keyApi.getPublicKey(privateKey);
 
-    final displayName = _nameController.text.isNotEmpty ? _nameController.text : "anonstr";
-    final noteContent = _noteController.text.isNotEmpty ? _noteController.text : "github.com/untreu2";
+    final displayName = _nameController.text.isNotEmpty ? _nameController.text : "Anonstr";
 
     final metadataEvent = Event(
       kind: 0,
@@ -178,40 +184,69 @@ class _NostrHomePageState extends State<NostrHomePage> {
     });
   }
 
-  void _copyToClipboard(String noteId) {
-    Clipboard.setData(ClipboardData(text: noteId)).then((_) {
+  void _copyToClipboard(String text, String message) {
+    Clipboard.setData(ClipboardData(text: text)).then((_) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Note ID copied to clipboard')),
+        SnackBar(content: Text(message)),
       );
     });
   }
 
   void _showNoteIdDialog(String noteId) {
+    String njumpLink = 'https://njump.me/$noteId';
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Note published successfully!'),
+          title: const Center(
+            child: Text(
+              'Note published successfully!',
+              textAlign: TextAlign.center,
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              SelectableText(noteId),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    _copyToClipboard(noteId, 'Note ID copied to clipboard');
+                  },
+                  child: const Text('Copy Note ID'),
+                ),
+              ),
               const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  _copyToClipboard(noteId);
-                },
-                child: const Text('Copy Note ID'),
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    _copyToClipboard(njumpLink, 'njump link copied to clipboard');
+                  },
+                  child: const Text('Copy njump link'),
+                ),
               ),
             ],
           ),
-          actions: [
-
-
-          ],
+          actions: [],
         );
       },
     );
+  }
+
+  void _showWarningDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Warning'),
+          content: Text(message),
+        );
+      },
+    );
+
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.of(context).pop();
+    });
   }
 
   @override
@@ -219,6 +254,8 @@ class _NostrHomePageState extends State<NostrHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('anonstr'),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.favorite),
           onPressed: _showDonateDialog,
@@ -230,43 +267,49 @@ class _NostrHomePageState extends State<NostrHomePage> {
           ),
         ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 165),
-              TextField(
-                controller: _noteController,
-                decoration: const InputDecoration(
-                  labelText: 'Enter your note',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Enter your display name',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 165),
-              _isLoading
-                  ? const CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _broadcastNote,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 50),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 165),
+                    TextField(
+                      controller: _noteController,
+                      decoration: const InputDecoration(
+                        labelText: 'Enter your note',
+                        border: OutlineInputBorder(),
                       ),
-                      child: const Text('Share'),
+                      maxLines: 3,
                     ),
-            ],
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Enter your display name (optional)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 165),
+                    _isLoading
+                        ? const CircularProgressIndicator()
+                        : ElevatedButton(
+                            onPressed: _broadcastNote,
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size(double.infinity, 50),
+                            ),
+                            child: const Text('Share'),
+                          ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -294,9 +337,7 @@ class _NostrHomePageState extends State<NostrHomePage> {
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: 'untreu@walletofsatoshi.com')).then((_) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Copied.'),
-                          ),
+                          const SnackBar(content: Text('Copied.')),
                         );
                       });
                     },
@@ -320,9 +361,7 @@ class _NostrHomePageState extends State<NostrHomePage> {
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: 'bc1qr2zfelma4vmsnwhyn88yctfxjtmu2d0xs55eh3')).then((_) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Copied.'),
-                          ),
+                          const SnackBar(content: Text('Copied.')),
                         );
                       });
                     },
